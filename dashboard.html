@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMS - Insurance Policy & Claims Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body onload="initDashboard()">
+    <!-- Top Navigation Header -->
+    <div class="navbar">
+        <h2 id="portalTitle">IMS — Insurance Management System</h2>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <span id="userBanner" style="font-weight: 600;"></span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Live Summary Counters (Stats Grid) -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-box" id="totalUsersBox">
+                <h3 id="statUsers">0</h3>
+                <p>Total Users</p>
+            </div>
+            <div class="stat-box">
+                <h3 id="statPolicies">0</h3>
+                <p id="labelPolicies">Policies</p>
+            </div>
+            <div class="stat-box">
+                <h3 id="statClaims">0</h3>
+                <p id="labelClaims">Total Claims</p>
+            </div>
+            <div class="stat-box" style="border-left-color: #d97706;">
+                <h3 id="statPending">0</h3>
+                <p>Pending</p>
+            </div>
+            <div class="stat-box" style="border-left-color: #15803d;">
+                <h3 id="statApproved">0</h3>
+                <p>Approved</p>
+            </div>
+            <div class="stat-box" style="border-left-color: #dc2626;">
+                <h3 id="statRejected">0</h3>
+                <p>Rejected</p>
+            </div>
+        </div>
+
+        <!-- ADMIN ONLY: Staff Management -->
+        <div class="card" id="adminStaffSection" style="display: none;">
+            <h3>Admin Console: Create Insurance Agent or Claims Officer</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
+                <input type="text" id="staffName" placeholder="Staff Full Name">
+                <input type="email" id="staffEmail" placeholder="Official Company Email">
+                <input type="password" id="staffPassword" placeholder="Assign Password">
+                <input type="text" id="staffPhone" placeholder="Mobile / Phone Number">
+                <select id="staffRole">
+                    <option value="Agent">Insurance Agent</option>
+                    <option value="Officer">Claims Officer</option>
+                </select>
+            </div>
+            <button type="button" onclick="createStaffAccount()">Create Staff Account</button>
+
+            <h4 style="margin-top: 28px;">System Users & Staff Directory</h4>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Full Name</th>
+                            <th>Email Address</th>
+                            <th>Assigned Role</th>
+                            <th>Contact Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CUSTOMER ONLY: Browse Plans & Buy Online -->
+        <div class="card" id="customerPurchaseSection" style="display: none;">
+            <h3>IMS Insurance Products & Plans (Select to Proceed to Instant Coverage)</h3>
+            <div class="plans-grid" id="plansContainer"></div>
+
+            <hr>
+            <h4>My Profile Information</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-bottom: 14px;">
+                <input type="text" id="profName" placeholder="Full Name">
+                <input type="text" id="profPhone" placeholder="Phone Number">
+                <input type="text" id="profAddress" placeholder="Residential Address">
+            </div>
+            <button type="button" onclick="updateMyProfile()">Update My Profile</button>
+        </div>
+
+        <!-- ADMIN & AGENT: Issue Policy Directly -->
+        <div class="card" id="agentPolicySection" style="display: none;">
+            <h3>Issue Policy to Customer (INR ₹)</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
+                <input type="text" id="polNumber" placeholder="Policy Number (e.g. POL-2001)">
+                <select id="polType">
+                    <option value="IMS Health Shield Plus">IMS Health Shield Plus</option>
+                    <option value="IMS Comprehensive Motor Cover">IMS Comprehensive Motor Cover</option>
+                    <option value="IMS Jeevan Suraksha Term Life">IMS Jeevan Suraksha Term Life</option>
+                    <option value="IMS Griha Raksha Home Plan">IMS Griha Raksha Home Plan</option>
+                </select>
+                <input type="number" id="polCoverage" placeholder="Sum Assured in ₹ (e.g. 500000)">
+                <input type="number" id="polCustomerId" placeholder="Customer User ID">
+                <input type="date" id="polStart" title="Start Date">
+                <input type="date" id="polEnd" title="End Date">
+                <input type="number" id="polPremium" placeholder="Annual Base Premium in ₹">
+            </div>
+            <button type="button" onclick="issuePolicyByStaff()">Issue Policy Certificate</button>
+        </div>
+
+        <!-- POLICIES TABLE -->
+        <div class="card">
+            <h3 id="policiesTableTitle">Active & Issued Policies</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Policy #</th>
+                            <th>Plan Type</th>
+                            <th>Sum Assured (₹)</th>
+                            <th>Policyholder</th>
+                            <th>Assigned Agent</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Premium (₹)</th>
+                            <th>Status</th>
+                            <th>Official Invoice</th>
+                        </tr>
+                    </thead>
+                    <tbody id="policiesTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CUSTOMER ONLY: Submit Claim & Upload Documents -->
+        <div class="card" id="customerClaimSection" style="display: none;">
+            <h3>Submit a New Insurance Claim</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
+                <input type="text" id="clmNumber" placeholder="Claim Number (e.g. CLM-8001)">
+                <input type="number" id="clmPolicyId" placeholder="Policy ID (from My Policies table)">
+                <input type="number" id="clmAmount" placeholder="Claim Amount in ₹">
+                <input type="date" id="clmDate" title="Date of Incident">
+            </div>
+            <textarea id="clmReason" placeholder="Describe the incident, hospitalization, or loss details..."></textarea>
+            <button type="button" onclick="submitClaim()">Submit Claim for Verification</button>
+
+            <hr>
+            <h3>Upload Supporting Claim Documents</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+                <input type="number" id="docClaimId" placeholder="Claim ID (from My Claims table)">
+                <input type="text" id="docType" placeholder="Document Type (e.g. Medical Bill, Discharge Summary, FIR)">
+                <input type="file" id="docFile">
+            </div>
+            <button type="button" onclick="uploadCustomerDocument()">Upload Document</button>
+        </div>
+
+        <!-- CLAIMS TABLE -->
+        <div class="card">
+            <h3 id="claimsTableTitle">Claims & Status Tracking</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Claim ID</th>
+                            <th>Claim #</th>
+                            <th>Policy #</th>
+                            <th>Customer</th>
+                            <th>Reason</th>
+                            <th>Amount (₹)</th>
+                            <th>Status</th>
+                            <th>Officer Remarks</th>
+                            <th id="claimActionHeader">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="claimsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DOCUMENTS TABLE -->
+        <div class="card">
+            <h3 id="documentsTableTitle">Supporting Documents & Verification Status</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Doc ID</th>
+                            <th>Claim #</th>
+                            <th>Customer</th>
+                            <th>Document Type</th>
+                            <th>Uploaded File</th>
+                            <th>Status</th>
+                            <th id="docActionHeader">Verification</th>
+                        </tr>
+                    </thead>
+                    <tbody id="documentsTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- PAYMENT GATEWAY MODAL (INR + 18% GST BREAKDOWN)           -->
+    <!-- ========================================================= -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-box" style="max-width: 500px;">
+            <h3 style="margin-top: 0; color: #1e3a8a; border: none; padding: 0;">IMS Secure Payment Gateway</h3>
+            <p id="payPlanSummary" style="font-size: 14px; background: #eff6ff; padding: 14px; border-radius: 8px; border: 1px solid #bfdbfe; margin-bottom: 18px; line-height: 1.6;"></p>
+
+            <label style="font-weight: 700; font-size: 0.92rem; color: #334155; display: block; margin-bottom: 8px;">
+                Select Payment Method:
+            </label>
+            <select id="payMethod" onchange="togglePaymentFields()">
+                <option value="UPI (GPay / PhonePe / Paytm)">UPI (GPay / PhonePe / Paytm)</option>
+                <option value="Credit / Debit Card">Credit / Debit Card</option>
+                <option value="Net Banking (All Indian Banks)">Net Banking (All Indian Banks)</option>
+            </select>
+
+            <div id="upiField">
+                <input type="text" id="upiIdInput" placeholder="Enter Virtual Payment Address / UPI ID (e.g. user@okicici)">
+            </div>
+            <div id="cardField" style="display: none;">
+                <input type="text" id="cardNumberInput" placeholder="Card Number (4532-XXXX-XXXX-8921)">
+                <input type="text" id="cardExpiryInput" placeholder="Expiry Date (MM/YY) & CVV">
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 14px;">
+                <button type="button" class="btn-approve" style="flex: 1; padding: 13px !important; font-size: 0.95rem !important;" onclick="confirmAndPayPolicy()">
+                    Pay & Generate Official Policy
+                </button>
+                <button type="button" class="btn-reject" style="width: auto; padding: 13px 20px !important; font-size: 0.95rem !important;" onclick="closePaymentModal()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- OFFICIAL IMS POLICY & TAX INVOICE RECEIPT MODAL           -->
+    <!-- ========================================================= -->
+    <div class="modal-overlay" id="invoiceModal">
+        <div class="modal-box" style="max-width: 760px;">
+            <div class="invoice-box" id="printableInvoice">
+                <div class="invoice-header">
+                    <div>
+                        <h2 style="margin: 0; color: #1e3a8a; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em;">IMS LIFE & GENERAL INSURANCE LTD.</h2>
+                        <p style="margin: 4px 0; font-size: 12px; color: #475569;">Corporate Office: IMS Tower, HITEC City, Hyderabad, Telangana - 500081</p>
+                        <p style="margin: 2px 0; font-size: 12px; color: #334155;"><strong>IMS GSTIN:</strong> <span id="invCompanyGstin"></span> | IRDAI Reg. No: 158</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <h3 style="margin: 0; color: #15803d; font-size: 1.05rem; font-weight: 700; border: none; padding: 0;">TAX INVOICE & CERTIFICATE</h3>
+                        <p style="margin: 4px 0; font-size: 12px; color: #475569;"><strong>Invoice No:</strong> <span id="invNumber"></span></p>
+                        <p style="margin: 2px 0; font-size: 12px; color: #475569;"><strong>Txn ID:</strong> <span id="invTxnId"></span></p>
+                        <p style="margin: 2px 0; font-size: 12px; color: #475569;"><strong>Date:</strong> <span id="invDate"></span></p>
+                    </div>
+                </div>
+
+                <div class="invoice-grid">
+                    <div>
+                        <h4 style="margin: 0 0 6px 0; color: #1e3a8a; font-size: 0.95rem;">Policyholder Details</h4>
+                        <p style="margin: 3px 0;"><strong>Name:</strong> <span id="invCustName"></span></p>
+                        <p style="margin: 3px 0;"><strong>Email:</strong> <span id="invCustEmail"></span></p>
+                        <p style="margin: 3px 0;"><strong>Phone:</strong> <span id="invCustPhone"></span></p>
+                        <p style="margin: 3px 0;"><strong>Address:</strong> <span id="invCustAddress"></span></p>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0 0 6px 0; color: #1e3a8a; font-size: 0.95rem;">Policy Schedule</h4>
+                        <p style="margin: 3px 0;"><strong>Policy Number:</strong> <span id="invPolNumber"></span></p>
+                        <p style="margin: 3px 0;"><strong>Plan Type:</strong> <span id="invPolType"></span></p>
+                        <p style="margin: 3px 0;"><strong>Sum Assured:</strong> ₹<span id="invCoverage"></span></p>
+                        <p style="margin: 3px 0;"><strong>Validity Period:</strong> <span id="invValidity"></span></p>
+                        <p style="margin: 3px 0;"><strong>Payment Mode:</strong> <span id="invPayMethod"></span></p>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>SAC Code</th>
+                            <th>Amount (INR ₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Annual Insurance Policy Base Premium</td>
+                            <td>997132</td>
+                            <td>₹<span id="invBaseAmt"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Goods & Services Tax (GST @ 18%)</td>
+                            <td>997132</td>
+                            <td>₹<span id="invGstAmt"></span></td>
+                        </tr>
+                        <tr style="background: #eef2ff; font-weight: bold; font-size: 1rem;">
+                            <td colspan="2">Total Amount Paid (Inclusive of 18% GST)</td>
+                            <td style="color: #15803d;">₹<span id="invTotalPaid"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="terms-box">
+                    <strong style="color: #1e293b;">Terms & Conditions of Cover:</strong>
+                    <ol style="margin: 6px 0 0 18px; padding: 0;">
+                        <li>This Policy Certificate & Tax Invoice is valid subject to realization of premium payment under Transaction ID listed above.</li>
+                        <li><strong>Free-Look Period:</strong> Policyholder may review and cancel this policy within 15 days from date of receipt if terms are unsuitable.</li>
+                        <li><strong>Express Claim Settlement:</strong> Eligible health, hospitalization, and accidental claims with valid KYC are processed within 4 hours.</li>
+                        <li>Jurisdiction: Hyderabad, Telangana, India. This is a computer-generated official document under IRDAI guidelines and requires no physical signature.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 18px;">
+                <button type="button" style="flex: 1;" onclick="window.print()">Print / Save Invoice PDF</button>
+                <button type="button" class="btn-reject" style="width: auto; padding: 12px 24px !important;" onclick="closeInvoiceModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- OFFICIAL IMS COMPANY FOOTER                               -->
+    <!-- ========================================================= -->
+    <footer class="ims-footer">
+        <div class="ims-footer-inner">
+            <div class="ims-tagline">
+                <h2>Secure Your Family's Future While Saving More Today</h2>
+                <p style="margin: 0; font-size: 14px;">Trusted Protection Across India — IMS (Insurance Management System)</p>
+            </div>
+
+            <div class="ims-trust-grid">
+                <div class="ims-trust-card">
+                    <h4>⚡ 4-Hour Express Claim Settlement</h4>
+                    <p>Fast-track digital claim verification and direct bank settlement within 4 hours for eligible claims.</p>
+                </div>
+                <div class="ims-trust-card">
+                    <h4>⭐ 99.45% Individual Claim Ratio</h4>
+                    <p>Guaranteed industry-leading 99.45% Individual Death Claim Settlement Ratio for FY 2026–27 as per latest annual audit.</p>
+                </div>
+                <div class="ims-trust-card">
+                    <h4>👨‍👩‍👧‍👦 18.5+ Lakhs Families Protected</h4>
+                    <p>Over 18.5 Lakhs Indian families secured across comprehensive life, health, motor, and property protection plans.</p>
+                </div>
+                <div class="ims-trust-card">
+                    <h4>💰 ₹42,500+ Crores Sum Assured</h4>
+                    <p>Strong financial protection backed by ₹42,500+ Crores in active retail sum assured across India.</p>
+                </div>
+                <div class="ims-trust-card">
+                    <h4>📈 ₹1.5 Crore+ Assets Managed (AUM)</h4>
+                    <p>Prudent fund governance and disciplined solvency reserves ensuring long-term policyholder stability.</p>
+                </div>
+                <div class="ims-trust-card">
+                    <h4>🏢 240+ Branches Across Major Cities</h4>
+                    <p>Pan-India presence across 200–300 physical branches in major metro and tier-2 cities for localized support.</p>
+                </div>
+            </div>
+
+            <div class="ims-contact-bar">
+                <div><strong>Need Help or Have Queries?</strong> Call IMS Toll-Free: <strong>1800-209-4567</strong> / <strong>+91-40-6789-4321</strong></div>
+                <div>Write to us: <strong>customercare@imsinsurance.in</strong></div>
+            </div>
+
+            <div class="ims-disclaimer">
+                <strong>Disclaimer:</strong> IMS Insurance Management System (IMS) is an insurance policy administration and claims facilitation platform. Insurance is the subject matter of solicitation. Please read the sales brochure, policy wordings, and terms & conditions carefully before concluding a sale. Tax benefits are subject to changes in prevailing Indian tax laws. Individual Death Claim Settlement Ratio of 99.45% for 2026–27 is based on the latest annual audited figures. &copy; 2026 IMS Insurance Ltd. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="/app.js"></script>
+</body>
+</html>

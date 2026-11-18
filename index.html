@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal - Insurance Policy & Claims Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="theme-customer">
+    <div class="navbar">
+        <h2>IMS — Customer Portal</h2>
+        <div>
+            <a href="/company" style="color: #fde047; font-weight: bold; text-decoration: none; font-size: 0.92rem; display: inline-flex; align-items: center; gap: 6px;">
+                Company Staff Portal &rarr;
+            </a>
+        </div>
+    </div>
+
+    <div class="container" style="max-width: 500px; margin-top: 45px;">
+        <!-- 1. Customer Registration Box -->
+        <div class="card" id="customerRegisterBox">
+            <h3>New Customer Registration</h3>
+            <p style="font-size: 13.5px; color: #64748b; margin-bottom: 20px;">
+                Create your verified customer profile to purchase insurance policies, manage coverage, and submit claims online.
+            </p>
+            <input type="text" id="regName" placeholder="Full Legal Name" required>
+            <input type="email" id="regEmail" placeholder="Email Address" required>
+            <input type="password" id="regPassword" placeholder="Create Password (min 4 chars)" required>
+            <input type="text" id="regPhone" placeholder="Mobile / Phone Number" required>
+            <input type="text" id="regAddress" placeholder="Full Residential Address" required>
+            <button type="button" style="width: 100%;" onclick="handleCustomerRegister()">Create Customer Account</button>
+            <p id="regMsg" style="font-weight: bold; margin-top: 14px; text-align: center;"></p>
+
+            <hr>
+            <p style="text-align: center; font-size: 14px; color: #475569;">
+                Already have an account?
+                <a href="#" onclick="showCustomerLogin(); return false;" style="color: #1e3a8a; font-weight: 700; text-decoration: none;">
+                    Login here &rarr;
+                </a>
+            </p>
+        </div>
+
+        <!-- 2. Customer Login Box -->
+        <div class="card" id="customerLoginBox" style="display: none;">
+            <h3>Customer Sign In</h3>
+            <p style="font-size: 13.5px; color: #64748b; margin-bottom: 20px;">
+                Sign in to your IMS account to view policies, make instant premium payments, and track claims status.
+            </p>
+            <input type="email" id="custLoginEmail" placeholder="Customer Email Address" required>
+            <input type="password" id="custLoginPassword" placeholder="Enter Password" required>
+            <div style="text-align: right; margin-bottom: 14px;">
+                <a href="#" onclick="showForgotPassword(); return false;" style="font-size: 13px; color: #2563eb; text-decoration: none; font-weight: 600;">
+                    Forgot Password?
+                </a>
+            </div>
+            <button type="button" style="width: 100%;" onclick="handlePortalLogin('Customer')">Sign In to Customer Portal</button>
+            <p id="custLoginMsg" style="color: #dc2626; font-weight: bold; margin-top: 14px; text-align: center;"></p>
+
+            <hr>
+            <p style="text-align: center; font-size: 14px; color: #475569;">
+                New customer?
+                <a href="#" onclick="showCustomerRegister(); return false;" style="color: #1e3a8a; font-weight: 700; text-decoration: none;">
+                    Create an account &rarr;
+                </a>
+            </p>
+        </div>
+
+        <!-- 3. Customer Forgot Password Box -->
+        <div class="card" id="forgotPasswordBox" style="display: none;">
+            <h3>Reset Customer Password</h3>
+            <p style="font-size: 13.5px; color: #64748b; margin-bottom: 20px;">
+                Verify your registered email and phone number to create a new password.
+            </p>
+            <input type="email" id="fpEmail" placeholder="Registered Email Address" required>
+            <input type="text" id="fpPhone" placeholder="Registered Phone Number" required>
+            <input type="password" id="fpNewPassword" placeholder="Enter New Password (min 4 chars)" required>
+            <button type="button" style="width: 100%;" onclick="handleForgotPassword()">Reset & Update Password</button>
+            <p id="fpMsg" style="font-weight: bold; margin-top: 14px; text-align: center;"></p>
+
+            <hr>
+            <p style="text-align: center; font-size: 14px; color: #475569;">
+                Remembered your password?
+                <a href="#" onclick="showCustomerLogin(); return false;" style="color: #1e3a8a; font-weight: 700; text-decoration: none;">
+                    Back to Login
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Official IMS Company Footer -->
+    <footer class="ims-footer">
+        <div class="ims-footer-inner">
+            <div class="ims-tagline">
+                <h2>Secure Your Family's Future While Saving More Today</h2>
+                <p style="margin: 0; font-size: 14px;">Trusted Protection Across India — IMS (Insurance Management System)</p>
+            </div>
+
+            <div class="ims-trust-grid">
+                <div class="ims-trust-card">
+                    <h4>⚡ 4-Hour Express Claim Settlement</h4>
+                    <p>Fast-track digital claim verification and direct bank settlement within 4 hours for eligible claims.</p>
+                </div>
+                <div class="ims-trust-card">
+                    <h4>⭐ 99.45% Claim Settlement Ratio</h4>
+                    <p>Guaranteed industry-leading 99.45% Individual Death Claim Settlement Ratio for FY 2026–27 as per latest audit.</p>
+                </div>
+                <div class="ims-trust-card">
+                    <h4>🛡️ 18.5+ Lakhs Families Protected</h4>
+                    <p>Over 18.5 Lakhs Indian families secured across life, health, motor, and property protection plans.</p>
+                </div>
+            </div>
+
+            <div class="ims-contact-bar">
+                <div><strong>Need Help or Have Queries?</strong> Call IMS Toll-Free: <strong>1800-209-4567</strong> / <strong>+91-40-6789-4321</strong></div>
+                <div>Write to us: <strong>customercare@imsinsurance.in</strong></div>
+            </div>
+
+            <div class="ims-disclaimer">
+                <strong>Disclaimer:</strong> IMS Insurance Management System (IMS) is an insurance policy administration and claims facilitation platform. Insurance is the subject matter of solicitation. Please read the sales brochure, policy wordings, and terms & conditions carefully before concluding a sale. &copy; 2026 IMS Insurance Ltd. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="/app.js"></script>
+</body>
+</html>
